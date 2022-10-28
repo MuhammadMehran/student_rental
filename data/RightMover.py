@@ -90,7 +90,7 @@ class RightmoveScraper:
                 'type': types[index].lower(),
             })
 
-    def to_csv(self, city, city_name):
+    def save(self, city_name):
         self.df = pd.DataFrame(self.results)
         self.df['price'] = self.df['price'].str.split(' ').str[0].replace(
             '[\$Â£,)]', '', regex=True).replace('[(]', '-',   regex=True).astype(float)
@@ -165,5 +165,7 @@ class RightmoveScraper:
             except:
                 pass
             page += 1
+
+        self.save(city_name=city_name)
         self.df['nres'] = nres
         self.df.to_csv(city_name+'.csv', index=False)

@@ -29,7 +29,15 @@ def get_data(city, city_name):
     df = pd.read_csv('data/'+city_name+'.csv')
     nres = df['nres'].astype(int).iloc[0]
     df['bed'] = df['bed'].astype(str)
+    symbols = ['>', '<', '"', "'", ',', '(', ')']
 
+    for symbol in symbols:
+        try:
+            df['sq_ft'] = df['sq_ft'].str.replace(symbol, '')
+        except:
+            pass
+
+    df['sq_ft'] = pd.to_numeric(df['sq_ft'], errors='coerce')
     return df, nres
 
 
@@ -51,28 +59,40 @@ df, nres = get_data(codes[city], city)
 
 
 if df.shape[0] != 0:
-    _, col1, col2, col3 = st.columns((0.1, 1, 1, 1))
+    _, col1, col2, col3, col4 = st.columns((0.1, 1, 1, 1, 1))
 
     # col1.metric(label="Average Weekly Rate", value='£ ' + str(
     #     round(df['price_weekly'].mean(), 2)))
 
     fig = go.Figure(go.Indicator(
         mode="number", value=nres,  number={'font_size': 60}))
-    fig.update_layout(height=200, width=400, title='Total Listings')
+    fig.update_layout(height=200, width=300, title='Total Listings')
 
     col1.plotly_chart(fig)
 
     fig = go.Figure(go.Indicator(
         mode="number", value=round(df['price_weekly'].mean(), 2),  number={'prefix': "£", 'font_size': 60}))
-    fig.update_layout(height=200, width=400, title='Average Weekly Rate')
+    fig.update_layout(height=200, width=300, title='Average Weekly Rate')
 
     col2.plotly_chart(fig)
 
     fig = go.Figure(go.Indicator(
         mode="number", value=round(df['price'].mean() * 12, 2),  number={'prefix': "£", 'font_size': 60}))
-    fig.update_layout(height=200, width=400, title='Average Annual Revenue')
+    fig.update_layout(height=200, width=300, title='Average Annual Revenue')
 
     col3.plotly_chart(fig)
+
+    sq = df[~(df['sq_ft'].isna())]
+    rent_per_sq = (sq['price'] / sq['sq_ft']).mean()
+
+    if str(rent_per_sq).lower() == 'nan' or str(rent_per_sq).lower() == 0:
+        pass
+    else:
+        fig = go.Figure(go.Indicator(mode="number", value=round(
+            rent_per_sq, 2),  number={'prefix': "£", 'font_size': 60}))
+        fig.update_layout(height=200, width=300, title='Rent per Sq ft.')
+
+        col4.plotly_chart(fig)
 
     # col2.metric(label="Average Annual Revenue", value='£ ' + str(
     #     round(df['price'].mean() * 12, 2)))
