@@ -137,7 +137,7 @@ if df.shape[0] != 0:
     total_students = uni_df_city[uni_df_city['Univeristy Name']
                                  == 'Total:'].iloc[0]['Number of Students']
     demand = uni_df_city['Students / Active Listing (Avg)'].iloc[0]
-    _, col1, col2 = st.columns((0.04, 0.4, 1))
+    _, col1, col2, col3 = st.columns((0.07, 0.5, 0.5, 1))
     fig = go.Figure(go.Indicator(
         mode="number", value=total_students,  number={'font_size': 60}))
     fig.update_layout(height=200, width=300, title='Total Students')
@@ -149,13 +149,15 @@ if df.shape[0] != 0:
     fig.update_layout(height=200, width=300,
                       title='Students / Active Listing (Avg)')
 
-    col1.plotly_chart(fig)
-
-    uni_df_city2 = uni_df_city[uni_df_city['Univeristy Name'] != 'Total:']
-    fig = px.bar(uni_df_city2, x="Number of Students", y="Univeristy Name",
-                 color="Univeristy Name", title="Number of Students in Universities")
-    fig.update_layout(template='simple_white', width=900)
     col2.plotly_chart(fig)
+
+    # fig = px.bar(uni_df_city, x="Number of Students",
+    #              y="Univeristy Name", title="Number of Students in Universities")
+    # fig.update_layout(template='simple_white', width=900)
+    # col2.plotly_chart(fig)
+
+    col3.dataframe(
+        uni_df_city[['Univeristy Name', 'Number of Students']].reset_index(drop=True))
 
 
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
@@ -163,6 +165,17 @@ with row4_1:
     if df.shape[0] != 0:
         count = df['bed'].value_counts().reset_index().sort_values('index')
         count.columns = ['Rooms', 'Size']
+
+        studio = None
+        if 'studio' in count['Rooms'].values:
+            studio = count[count['Rooms'] == 'studio']['Size'].iloc[0]
+
+        count = count[~(count['Rooms'].isin(['studio', 'nan']))]
+        count['Rooms'] = count['Rooms'].astype(int)
+        count = count.sort_values('Rooms').reset_index(drop=True)
+        if studio != None:
+            count.loc[len(count.index)] = ['studio', studio]
+        count['Rooms'] = count['Rooms'].astype('str')
         fig = px.bar(count, y="Rooms", x="Size",
                      color="Rooms", title="Rental Size")
         fig.update_layout(template='simple_white')
