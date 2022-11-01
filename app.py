@@ -92,7 +92,7 @@ home_dfs = []
 if city != '---------':
     r = requests.get(
         f'https://www.home.co.uk/for_rent/{city.lower()}/current_rents?location={city.lower()}', headers=headers)
-    soup = BeautifulSoup(r.text, 'lxml')
+    soup = BeautifulSoup(r.text)
     tables = soup.findAll('div', attrs={'class': 'scroll-horizontal'})
     for table in tables:
         d = pd.read_html(str(table))[0].T
