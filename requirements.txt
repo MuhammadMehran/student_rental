@@ -59,4 +59,4 @@ validators==0.20.0
 watchdog==2.1.9
 zipp==3.8.1
 requests==2.28.0
-bs4==4.8.0
+beautifulsoup4==4.11.1
