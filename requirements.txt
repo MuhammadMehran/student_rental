@@ -59,3 +59,4 @@ validators==0.20.0
 watchdog==2.1.9
 zipp==3.8.1
 beautifulsoup4==4.11.1
+lxml==4.9.1
