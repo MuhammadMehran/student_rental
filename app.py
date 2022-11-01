@@ -203,7 +203,6 @@ if df.shape[0] != 0:
 
 if len(home_dfs) != 0:
     _, col1, col2, col3, col4 = st.columns((0.07, 1, 1, 1, 1))
-    foo = home_dfs[0].dtypes.astype(str)
     # col1.dataframe(home_dfs[0])
     # col2.dataframe(home_dfs[1])
     # col3.dataframe(home_dfs[2])
