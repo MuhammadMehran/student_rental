@@ -34,8 +34,8 @@ def get_uni_data():
     uni_df['Active Listings'] = uni_df['Active Listings'].fillna(
         method='bfill')
 
-    uni_df['Number of Students'] = uni_df['Number of Students'].str.replace(
-        ',', '').astype(float)
+    # uni_df['Number of Students'] = uni_df['Number of Students'].str.replace(
+    #     ',', '').astype(float)
     return uni_df
 
 
@@ -136,6 +136,8 @@ if df.shape[0] != 0:
 if df.shape[0] != 0:
     total_students = uni_df_city[uni_df_city['Univeristy Name']
                                  == 'Total:'].iloc[0]['Number of Students']
+
+    total_students = int(total_students.replace(',', ''))
     demand = uni_df_city['Students / Active Listing (Avg)'].iloc[0]
     _, col1, col2, col3 = st.columns((0.07, 0.5, 0.5, 1))
     fig = go.Figure(go.Indicator(
@@ -157,7 +159,7 @@ if df.shape[0] != 0:
     # col2.plotly_chart(fig)
 
     col3.dataframe(
-        uni_df_city[['Univeristy Name', 'Number of Students']].reset_index(drop=True))
+        uni_df_city[['Univeristy Name', 'Number of Students']].reset_index(drop=True).dropna())
 
 
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
@@ -189,6 +191,6 @@ with row4_1:
 
 
 if df.shape[0] != 0:
-    see_data3 = st.expander('You can click here to see the MAP 👉')
+    see_data3 = st.expander('You can click here to see the Listings MAP 👉')
     with see_data3:
         st.map(df.dropna(subset=['lat']), zoom=9)
