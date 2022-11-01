@@ -4,6 +4,10 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
+from bs4 import BeautifulSoup
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
 
 st.set_page_config(layout="wide")
@@ -62,6 +66,10 @@ def get_data(city, city_name):
     return df, nres
 
 
+def change_dtype(value):
+    return str(value)
+
+
 st.header('Student Rental Analysis')
 
 styl = """
@@ -78,6 +86,23 @@ city = st.selectbox(
     "Please select City", cities, key='city', index=0)
 df, nres = get_data(codes[city], city)
 uni_df_city = uni_df[uni_df['City'] == city]
+home_dfs = []
+
+
+if city != '---------':
+    r = requests.get(
+        f'https://www.home.co.uk/for_rent/{city.lower()}/current_rents?location={city.lower()}', headers=headers)
+    soup = BeautifulSoup(r.text, 'lxml')
+    tables = soup.findAll('div', attrs={'class': 'scroll-horizontal'})
+    for table in tables:
+        d = pd.read_html(str(table))[0].T
+        d = d.fillna('')
+        d, d.columns = d[1:], d.iloc[0]
+        d = d.applymap(str)
+        for column in d.columns:
+            d.loc[:, column] = d[column].apply(change_dtype)
+
+        home_dfs.append(d)
 
 if df.shape[0] != 0:
     _, col1, col2, col3, col4 = st.columns((0.1, 1, 1, 1, 1))
@@ -174,6 +199,15 @@ if df.shape[0] != 0:
         drop=True).dropna().set_index('Univeristy Name')
     student_count.columns = ['# Students']
     col4.dataframe(student_count)
+
+
+if len(home_dfs) != 0:
+    _, col1, col2, col3, col4 = st.columns((0.07, 1, 1, 1, 1))
+    foo = home_dfs[0].dtypes.astype(str)
+    # col1.dataframe(home_dfs[0])
+    # col2.dataframe(home_dfs[1])
+    # col3.dataframe(home_dfs[2])
+    col4.table(home_dfs[3])
 
 
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
