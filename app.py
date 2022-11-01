@@ -130,6 +130,7 @@ if df.shape[0] != 0:
 #             domain={'x': [0, 1], 'y': [0, 1]},
 #             title={'text': "Demand"},
 #             gauge={'bar': {'color': demand_color}, 'axis': {'range': [None, 100]}}))
+#         fig.update_layout(height=300, width=500,)
 #         st.plotly_chart(fig)
 
 
@@ -139,27 +140,40 @@ if df.shape[0] != 0:
 
     total_students = int(total_students.replace(',', ''))
     demand = uni_df_city['Students / Active Listing (Avg)'].iloc[0]
-    _, col1, col2, col3 = st.columns((0.07, 0.5, 0.5, 1))
+    _, col1, col2, col3, col4 = st.columns((0.07, 1, 1, 1, 1))
     fig = go.Figure(go.Indicator(
         mode="number", value=total_students,  number={'font_size': 60}))
-    fig.update_layout(height=200, width=300, title='Total Students')
+    fig.update_layout(height=250, width=300, title='Total Students')
 
     col1.plotly_chart(fig)
 
     fig = go.Figure(go.Indicator(
         mode="number", value=round(demand, 2),  number={'font_size': 60}))
-    fig.update_layout(height=200, width=300,
+    fig.update_layout(height=250, width=300,
                       title='Students / Active Listing (Avg)')
 
     col2.plotly_chart(fig)
+
+    if 'demand' in df.columns:
+        demand = df['demand'].iloc[0]
+        demand_color = df['demand_color'].iloc[0]
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=demand,
+            domain={'x': [0, 1], 'y': [0, 1]},
+            title={'text': "student.com Demand Meter"},
+            gauge={'bar': {'color': demand_color}, 'axis': {'range': [None, 100]}}))
+        fig.update_layout(height=250, width=300,)
+        col3.plotly_chart(fig)
 
     # fig = px.bar(uni_df_city, x="Number of Students",
     #              y="Univeristy Name", title="Number of Students in Universities")
     # fig.update_layout(template='simple_white', width=900)
     # col2.plotly_chart(fig)
-
-    col3.dataframe(
-        uni_df_city[['Univeristy Name', 'Number of Students']].reset_index(drop=True).dropna())
+    student_count = uni_df_city[['Univeristy Name', 'Number of Students']].reset_index(
+        drop=True).dropna().set_index('Univeristy Name')
+    student_count.columns = ['# Students']
+    col4.dataframe(student_count)
 
 
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
