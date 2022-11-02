@@ -243,6 +243,8 @@ with row4_1:
             studio = count[count['Rooms'] == 'studio']['Size'].iloc[0]
 
         count = count[~(count['Rooms'].isin(['studio', 'nan']))]
+        print(count)
+        count['Rooms'] = count['Rooms'].astype(float)
         count['Rooms'] = count['Rooms'].astype(int)
         count = count.sort_values('Rooms').reset_index(drop=True)
         if studio != None:
