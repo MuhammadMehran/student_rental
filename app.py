@@ -201,12 +201,35 @@ if df.shape[0] != 0:
     col4.dataframe(student_count)
 
 
-# if len(home_dfs) != 0:
-#     _, col1, col2, col3, col4 = st.columns((0.07, 1, 1, 1, 1))
-#     # col1.dataframe(home_dfs[0])
-#     # col2.dataframe(home_dfs[1])
-#     # col3.dataframe(home_dfs[2])
-#     col4.table(home_dfs[3])
+if len(home_dfs) != 0:
+    _, col1, col2 = st.columns((0.07, 1, 1))
+    style = home_dfs[0].style.hide_index()
+    col1.write(style.to_html(), unsafe_allow_html=True)
+
+    vert_space = '<div style="padding: 10px 5px;"></div>'
+    st.markdown(vert_space, unsafe_allow_html=True)
+
+    style = home_dfs[1].style.hide_index()
+    col2.write(style.to_html(), unsafe_allow_html=True)
+
+    # style = home_dfs[2].style.hide_index()
+    # col3.write(style.to_html(), unsafe_allow_html=True)
+
+    # style = home_dfs[3].style.hide_index()
+    # col4.write(style.to_html(), unsafe_allow_html=True)
+
+
+if len(home_dfs) != 0:
+    _, col1, col2 = st.columns((0.07, 1, 1))
+
+    style = home_dfs[2].style.hide_index()
+    col1.write(style.to_html(), unsafe_allow_html=True)
+
+    style = home_dfs[3].style.hide_index()
+    col2.write(style.to_html(), unsafe_allow_html=True)
+
+    vert_space = '<div style="padding: 10px 5px;"></div>'
+    st.markdown(vert_space, unsafe_allow_html=True)
 
 
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
