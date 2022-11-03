@@ -49,7 +49,7 @@ uni_df = get_uni_data()
 @st.cache(ttl=24*60*60)
 def get_data(city, city_name):
     if city == None:
-        return pd.DataFrame(), None
+        return pd.DataFrame(), None, pd.DataFrame()
 
     df = pd.read_csv('data/'+city_name+'.csv')
     nres = df['nres'].astype(int).iloc[0]
