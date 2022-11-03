@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 import time
+import re
+import json
 
 
 class RightmoveScraper:
@@ -31,23 +33,24 @@ class RightmoveScraper:
             'span', {'data-test': 'property-description'})]
 #         prices = [price.text.strip() for price in content.findAll('div', {'class': 'propertyCard-priceValue'})]
         prices = []
-        prices_weekly = []
+        sqfts = []
+
         for div in content.find('div', {'id', 'l-searchResults'}).findAll('div', {'class': 'l-searchResult is-list'}):
 
             if div.get('id') == 'property-0':
                 continue
             try:
                 prices.append(
-                    div.find('span', {'class': 'propertyCard-priceValue'}).text.strip())
-
+                    div.find('div', {'class': 'propertyCard-priceValue'}).text.strip())
             except:
                 prices.append(np.nan)
 
             try:
-                prices_weekly.append(
-                    div.find('span', {'class': 'propertyCard-secondaryPriceValue'}).text.strip())
+                sqfts.append(
+                    div.find('span', attrs={
+                             'class': 'propertyCard-commercial-sizing--link'}).text.replace('sq. ft.', '').replace(',', '').strip())
             except:
-                prices_weekly.append(np.nan)
+                sqfts.append(np.nan)
 
         dates = [date.text.split(' ')[-1] for date in content.findAll(
             'span', {'class': 'propertyCard-branchSummary-addedOrReduced'})]
@@ -82,7 +85,7 @@ class RightmoveScraper:
                 'address': addresses[index],
                 'description': descriptions[index],
                 'price': prices[index],
-                'price_weekly': prices_weekly[index],
+                'sq_ft': sqfts[index],
                 'date': dates[index],
                 'seller': sellers[index],
                 'image': images[index],
@@ -92,10 +95,13 @@ class RightmoveScraper:
 
     def save(self, city_name):
         self.df = pd.DataFrame(self.results)
-        self.df['price'] = self.df['price'].str.split(' ').str[0].replace(
-            '[\$Â£,)]', '', regex=True).replace('[(]', '-',   regex=True).astype(float)
-        self.df['price_weekly'] = self.df['price_weekly'].str.split(' ').str[0].replace(
-            '[\$Â£,)]', '', regex=True).replace('[(]', '-',   regex=True).astype(float)
+        try:
+            self.df['price'] = self.df['price'].str.split(' ').str[0].replace(
+                '[\$Â£,)]', '', regex=True).replace('[(]', '-',   regex=True)
+            self.df['price'] = pd.to_numeric(self.df['price'], errors='coerce')
+        except:
+            pass
+
         self.df['bed'] = self.df['bed'].astype(str)
 
         def get_lat_lon(address, city):
@@ -121,22 +127,31 @@ class RightmoveScraper:
         self.df['lat'] = self.df['lat'].astype(float)
         self.df['lon'] = self.df['lon'].astype(float)
 
-        def get_sq_ft(link):
-            print('GET', link)
-            r = requests.get(link)
+        # def get_sq_ft(link):
+        #     print('GET', link)
+        #     r = requests.get(link)
+        #     try:
+        #         data = json.loads(r.text.split('window.PAGE_MODEL = ')[
+        #                           1].split('</script>')[0].strip())
+        #         similar_url = 'https://www.rightmove.co.uk' + \
+        #             data['propertyData']['propertyUrls']['similarPropertiesUrl']
+        #     except:
+        #         similar_url = np.nan
+        #     try:
+        #         words = r.text.lower().split(' ')
+        #         index = words.index('sq.')
+        #         return words[index-1], similar_url
+        #     except:
+        #         try:
+        #             words = r.text.lower().split(' ')
+        #             index = words.index('nbsp;sq.')
+        #             return words[index-1], similar_url
+        #         except:
+        #             return np.nan, similar_url
 
-            try:
-                words = r.text.lower().split(' ')
-                index = words.index('sq.')
-                return words[index-1]
-            except:
-                try:
-                    words = r.text.lower().split(' ')
-                    index = words.index('nbsp;sq.')
-                    return words[index-1]
-                except:
-                    return np.nan
-        self.df['sq_ft'] = self.df['link'].apply(get_sq_ft)
+        # self.df['sq_ft_sim'] = self.df['link'].apply(get_sq_ft)
+        self.df['sq_ft'] = self.df['sq_ft'].str.split(
+            '–').str[-1]
 
     def run(self, city=None, city_name=None):
         if city == None:
@@ -146,7 +161,7 @@ class RightmoveScraper:
         while page < pages:
             index = page * 24
             print(f'Page: {page+1}')
-            url = f'https://www.rightmove.co.uk/student-accommodation/find.html?locationIdentifier=REGION%{city}&index=' + \
+            url = f'https://www.rightmove.co.uk/commercial-property-for-sale/find.html?searchType=SALE&locationIdentifier=REGION%{city}&index=' + \
                 str(index) + '&propertyTypes=&mustHave=&dontShow=&furnishTypes=&keywords='
 
             response = self.fetch(url)

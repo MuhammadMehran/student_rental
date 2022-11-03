@@ -63,7 +63,10 @@ def get_data(city, city_name):
             pass
 
     df['sq_ft'] = pd.to_numeric(df['sq_ft'], errors='coerce')
-    return df, nres
+
+    df_prop = pd.read_csv('data/'+city_name+'_Property.csv')
+
+    return df, nres, df_prop
 
 
 def change_dtype(value):
@@ -84,7 +87,7 @@ styl = """
 st.markdown(styl, unsafe_allow_html=True)
 city = st.selectbox(
     "Please select City", cities, key='city', index=0)
-df, nres = get_data(codes[city], city)
+df, nres, df_prop = get_data(codes[city], city)
 uni_df_city = uni_df[uni_df['City'] == city]
 home_dfs = []
 
@@ -230,6 +233,34 @@ if len(home_dfs) != 0:
 
     vert_space = '<div style="padding: 10px 5px;"></div>'
     st.markdown(vert_space, unsafe_allow_html=True)
+
+st.header('Properties Available:')
+if df_prop.shape[0] != 0:
+    _, col1, col2, col3 = st.columns((0.1, 1, 1, 1))
+
+    fig = go.Figure(go.Indicator(
+        mode="number", value=df_prop['nres'].iloc[0],  number={'font_size': 60}))
+    fig.update_layout(height=200, width=300, title='Total Commerical Listings')
+
+    col1.plotly_chart(fig)
+
+    fig = go.Figure(go.Indicator(
+        mode="number", value=round(df_prop['price'].mean(), 2),  number={'prefix': "£", 'font_size': 60}))
+    fig.update_layout(height=200, width=300, title='Average Rate')
+
+    col2.plotly_chart(fig)
+
+    sq = df_prop[~(df_prop['sq_ft'].isna())]
+    rent_per_sq = (sq['price'] / sq['sq_ft']).mean()
+
+    if str(rent_per_sq).lower() == 'nan' or str(rent_per_sq).lower() == 0:
+        pass
+    else:
+        fig = go.Figure(go.Indicator(mode="number", value=round(
+            rent_per_sq, 2),  number={'prefix': "£", 'font_size': 60}))
+        fig.update_layout(height=200, width=300, title='Price per Sq ft.')
+
+        col3.plotly_chart(fig)
 
 
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
