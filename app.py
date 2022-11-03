@@ -234,8 +234,9 @@ if len(home_dfs) != 0:
     vert_space = '<div style="padding: 10px 5px;"></div>'
     st.markdown(vert_space, unsafe_allow_html=True)
 
-st.header('Properties Available:')
+
 if df_prop.shape[0] != 0:
+    st.header('Properties Available:')
     _, col1, col2, col3 = st.columns((0.1, 1, 1, 1))
 
     fig = go.Figure(go.Indicator(
