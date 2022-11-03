@@ -168,4 +168,20 @@ class RightmoveScraper:
 
         self.save(city_name=city_name)
         self.df['nres'] = nres
+
+        if city_name == 'Brighton':
+            city_name = 'brighton-and-hove'
+        r = requests.get(f'https://www.student.com/uk/{city_name.lower()}')
+        soup = BeautifulSoup(r.text, 'lxml')
+        try:
+            demand_div = soup.find(
+                'div', attrs={'class': 'availability-score'})
+            demand_color = demand_div.find(
+                'div').get('class')[-1].split('--')[1]
+            demand = float(demand_div.find(
+                'span', attrs={'class': 'availability-score__percentage--text'}).text)
+            self.df['demand'] = demand
+            self.df['demand_color'] = demand_color
+        except:
+            pass
         self.df.to_csv(city_name+'.csv', index=False)
