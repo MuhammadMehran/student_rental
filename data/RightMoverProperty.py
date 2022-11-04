@@ -162,7 +162,7 @@ class RightmoveScraper:
             index = page * 24
             print(f'Page: {page+1}')
             url = f'https://www.rightmove.co.uk/commercial-property-for-sale/find.html?searchType=SALE&locationIdentifier=REGION%{city}&index=' + \
-                str(index) + '&propertyTypes=&mustHave=&dontShow=&furnishTypes=&keywords='
+                str(index) + '&insId=1&radius=0.0&minPrice=&maxPrice=&minBedrooms=&maxBedrooms=&displayPropertyType=commercial&maxDaysSinceAdded=&_includeSSTC=on&sortByPriceDescending=&primaryDisplayPropertyType=&secondaryDisplayPropertyType=&oldDisplayPropertyType=&oldPrimaryDisplayPropertyType=&newHome=&auction=false'
 
             response = self.fetch(url)
             if response.status_code != 200:
