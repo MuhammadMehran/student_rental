@@ -267,7 +267,7 @@ if df_prop.shape[0] != 0:
 row4_1, _, row4_spacer2 = st.columns((1, 0.1, 1))
 with row4_1:
     if df.shape[0] != 0:
-        count = df['bed'].value_counts().reset_index().sort_values('index')
+        count = df['bed'].value_counts().reset_index()
         count.columns = ['Rooms', 'Size']
 
         studio = None
