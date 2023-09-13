@@ -206,8 +206,8 @@ if df.shape[0] != 0:
 
 if len(home_dfs) != 0:
     _, col1, col2 = st.columns((0.07, 1, 1))
-    style = home_dfs[0].style.hide_index()
-    col1.write(style.to_html(), unsafe_allow_html=True)
+    # style = home_dfs[0].style.hide_index()
+    # col1.write(style.to_html(), unsafe_allow_html=True)
 
     vert_space = '<div style="padding: 10px 5px;"></div>'
     st.markdown(vert_space, unsafe_allow_html=True)
